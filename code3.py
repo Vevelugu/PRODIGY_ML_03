@@ -1,24 +1,37 @@
-# I have trained the SVM model on images of cats and dogs and saved the model
-# to a pickle file on github.com. 
-# To test the model, download the raw pickle file from "Vevelugu/PRODIGY_ML_03" and 
-# path location in the "model_path" variable
-# The test function can be used with the model directly and is hence put here first 
-# The train function which was used to train the model is under the test function.
-# To use the test function against a model  
-
+''' 
+ I have trained the SVM model on images of cats and dogs and saved the model
+ to a pickle file on github.com. 
+ To test the model, download the raw pickle file from "Vevelugu/PRODIGY_ML_03" and put it in downloads.
+ To make it as convinient as possible to test this code I have included a mechanism to allow the user to
+ run the code by simply downloading the zip file of the  repository and extracting it in the downloads 
+ folder itself. However, for this to work the user shouldn't have changed the location or name of the
+ downloads folder and the system should have english locale. The method won't work otherwise and the user
+ should paste the path to the folders in question in the certain places required.
+ Will explain further at the code in comments. 
+ 
+ The testfunc() function can be used with the downloaded model directly and is hence put here first 
+ The trainfunc() function which was used to train the model is below. It can be used to train 
+ another model. 
+ '''
+# importing necessary libraries
 import pandas as pd
 import os
 from skimage.transform import resize
 from skimage.io import imread
 import numpy as np
-import matplotlib.pyplot as plt
+from pathlib import Path
 from sklearn import svm
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import MinMaxScaler as mms
 import pickle
-#insert path to the downloaded svm model here
-model_path = r"D:\AK\Career\Python\ProdigyInfotech\Task03_SVM\PRODIGY_ML_03\dogsvscats_svm_pickle.pkl" 
+
+
+#insert path to the downloaded svm model here if this doesn't work by itself
+model_file = r"dogsvscats_svm_pickle.pkl" 
+
+downloads_path = str(os.path.join(Path.home(), "Downloads"))
+model_path = str(os.path.join(downloads_path, model_file))
 
 # load the downloaded model here
 with open(model_path, 'rb') as file: 
@@ -39,10 +52,14 @@ def testfunc(model, test_dir):
     preds = model.predict(test_input)
     return preds
 
-#classifying using the trained model with images of cats and dogs
-# the default directory is the test directory from the repository.
-# any directory with images can be given.
-test_dir = r"D:\AK\Career\Python\ProdigyInfotech\Task03_SVM\PRODIGY_ML_03\dogs-vs-cats\test"
+'''
+ classifying using the trained model with images of cats and dogs
+ the default directory is the test directory from the downloads folder(download the zip from repo).
+ any directory with images can be given. 
+ '''
+
+test_folder = r"PRODIGY_ML_03-main\dogs-vs-cats\test"
+test_dir = os.path.join(downloads_path, test_folder)
 classer = testfunc(model_dl, test_dir)
 print(classer)
 
@@ -51,7 +68,7 @@ def trainfunc(imagedir):
     Categories = ['Cats', 'Dogs']
     input_arr = []
     output_arr = []
-    imagedir = r"D:\AK\Career\Python\ProdigyInfotech\Task03_SVM\PRODIGY_ML_03\dogs-vs-cats\train"
+    #imagedir = r"D:\AK\Career\Python\ProdigyInfotech\Task03_SVM\PRODIGY_ML_03\dogs-vs-cats\train"
     for i in Categories:  # i here is the folder for the category i.e "Cats" for cat images and "Dogs" for dog images
         print(f"Loading... Category {i}")
         path= os.path.join(imagedir, i) #joins the 2 paths 
@@ -83,20 +100,26 @@ def trainfunc(imagedir):
     xtrain = scaling.transform(xtrain)
     xtest = scaling.transform(xtest)
 
-# parameters used to train the SVM by. The higher number of values the longer
-# time taken by the SVM to learn but also higher the accuracy. 
-# used the following for training in my laptop
-# for 'C' and 'gamma' values can also use other float values 
-# for 'kernel' can also include 'linear', 'rbf' etc
-    parameter_grid = {'C' : [0.1], 'gamma' :[0.001], 'kernel' : ['poly']}
+ #parameters used to train the SVM by. The higher number of values the longer
+ #time taken by the SVM to learn but also higher the accuracy. 
+ #used the following for training in my laptop
+ 
+    parameter_grid = {'C' : [1,10,100], 'gamma' :[0.001,0.01,0.1], 'kernel' : ['rbf', 'linear','poly']}
+#for practicality only used a few of these values for actual training
 
     svc = svm.SVC(probability=True)
 
-    model = GridSearchCV(svc, parameter_grid)
+    model = GridSearchCV(svc, parameter_grid) #had intended to use this but my pc didn't allow
+    
+    print("Model is being trained")
 
     model.fit(xtrain, ytrain)
+    
+    print(f"Model has been trained\nTesting")
 
     ypred = model.predict(xtest)  
+    
+    print("Model has been tested")
 
     acc = accuracy_score(ypred, ytest)
 
@@ -106,12 +129,19 @@ def trainfunc(imagedir):
     
     return model
 
-# put location of training directory here
-traindir = r"D:\AK\Career\Python\ProdigyInfotech\Task03_SVM\PRODIGY_ML_03\dogs-vs-cats\train"
-
+# put location of training directory here if this doesn't work
+train_folder = r"PRODIGY_ML_03-main\dogs-vs-cats\train"
+traindir = str(os.path.join(downloads_path, train_folder))
 model = trainfunc(traindir)
 preds = testfunc(model, test_dir)
 print(preds)
+
+
+
+
+
+
+
 # to avoid retraining the model everytime saved the model using following code
 model_pkl_file = r"D:\New folder\dogsvscats_svm_pickle.pkl"
 # saving the model with pickle
