@@ -1,17 +1,15 @@
 ''' 
- I have trained the SVM model on images of cats and dogs and saved the model
- to a pickle file on github.com. 
- To test the model, download the raw pickle file from "Vevelugu/PRODIGY_ML_03" and put it in downloads.
- To make it as convinient as possible to test this code I have included a mechanism to allow the user to
- run the code by simply downloading the zip file of the  repository and extracting it in the downloads 
- folder itself. However, for this to work the user shouldn't have changed the location or name of the
- downloads folder and the system should have english locale. The method won't work otherwise and the user
- should paste the path to the folders in question in the certain places required.
- Will explain further at the code in comments. 
+ To make it as convinient as possible to test this code I have included a mechanism to allow the user to 
+ run the code by simply  downloading the zip file of the  repository and extracting it in the downloads 
+ folder itself. 
+ However, for this to work the user shouldn't have changed the location or name of the downloads folder
+ and the system should have english locale. The method won't work otherwise and the user should paste the
+ path to the folders in question in the certain places required. 
  
- The testfunc() function can be used with the downloaded model directly and is hence put here first 
- The trainfunc() function which was used to train the model is below. It can be used to train 
- another model. 
+ The code is divided into 3 sections. To test downloaded model run sections 1 and 2. to train a new model
+ run section 3. To train and test a new model run sections 3 and 2.
+ 
+ 
  '''
 # importing necessary libraries
 import pandas as pd
@@ -26,7 +24,11 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import MinMaxScaler as mms
 import pickle
 
-
+'''
+Section 1: Downloading the saved model from github. I have trained the SVM model on images of 
+cats and dogs and saved the model to a pickle file on github.com.  To test the model, 
+download the raw pickle file from "Vevelugu/PRODIGY_ML_03". 
+'''
 #insert path to the downloaded svm model here if this doesn't work by itself
 model_file = r"dogsvscats_svm_pickle.pkl" 
 
@@ -37,6 +39,11 @@ model_path = str(os.path.join(downloads_path, model_file))
 with open(model_path, 'rb') as file: 
     model_dl=pickle.load(file)
 
+
+
+'''
+Section 2: Test section. Run this section when testing a model.
+'''
 # testing the model against the test folder given in the dataset
 def testfunc(model, test_dir):
     input_arr = []
@@ -62,7 +69,9 @@ test_folder = r"PRODIGY_ML_03-main\dogs-vs-cats\test"
 test_dir = os.path.join(downloads_path, test_folder)
 classer = testfunc(model_dl, test_dir)
 print(classer)
-
+'''
+Section 2: Training a new model. 
+'''
 # Training the model by reading the images and converting image data into arrays
 def trainfunc(imagedir):
     Categories = ['Cats', 'Dogs']
